@@ -33,6 +33,7 @@ load necessary libraries
 library(dplyr)
 library(lubridate)
 library(ggplot2)
+library(lattice)
 ```
 
 Read data in and convert the date column into date format.
@@ -93,6 +94,8 @@ Which 5-minute interval, on average across all the days in the dataset, contains
 avg_per_interval[avg_per_interval$avg_num_steps == max(avg_per_interval$avg_num_steps), ]
 
 ```
+
+The 835th 5-minute interval contains the maximum number of steps, which 206.2.
 
 ## Imputing missing values
 
@@ -157,8 +160,19 @@ new_act_by_day_interval<- new_act_weekend %>%
 
 new_act_by_day_interval$day = as.factor(new_act_by_day_interval$day)
 
-g<- qplot(interval, avg_num_steps, data=new_act_by_day_interval, col=day, geom="line", facets = day ~ . )  + labs(x = "Interval") + labs(y = "Avg Number of Steps") + labs(title = "Number of Steps for weekday and weekends")
-g+ theme(legend.title = element_text(size = 11))
+
+panel.smoother <- function(x, y) {
+  panel.xyplot(x, y, type='l') # show points
+}
+
+with(new_act_by_day_interval, 
+     xyplot(avg_num_steps~interval | day,  
+            scales=list(cex=.8, col="red"), 
+            layout=c(1, 2), 
+            panel=panel.smoother,
+            xlab="Interval", ylab="Avg Number of Steps", 
+            main="Number of Steps for weekday and weekends"))
+  
 ```
 
 From the plot, it is obvious that there is difference between weekday and weekend activity patterns.

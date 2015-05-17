@@ -50,6 +50,7 @@ library(dplyr)
 ```r
 library(lubridate)
 library(ggplot2)
+library(lattice)
 ```
 
 Read data in and convert the date column into date format.
@@ -137,6 +138,8 @@ avg_per_interval[avg_per_interval$avg_num_steps == max(avg_per_interval$avg_num_
 ## 1      835         206.2
 ```
 
+The 835th 5-minute interval contains the maximum number of steps, which 206.2.
+
 ## Imputing missing values
 
 Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
@@ -222,8 +225,18 @@ new_act_by_day_interval<- new_act_weekend %>%
 
 new_act_by_day_interval$day = as.factor(new_act_by_day_interval$day)
 
-g<- qplot(interval, avg_num_steps, data=new_act_by_day_interval, col=day, geom="line", facets = day ~ . )  + labs(x = "Interval") + labs(y = "Avg Number of Steps") + labs(title = "Number of Steps for weekday and weekends")
-g+ theme(legend.title = element_text(size = 11))
+
+panel.smoother <- function(x, y) {
+  panel.xyplot(x, y, type='l') # show points
+}
+
+with(new_act_by_day_interval, 
+     xyplot(avg_num_steps~interval | day,  
+            scales=list(cex=.8, col="red"), 
+            layout=c(1, 2), 
+            panel=panel.smoother,
+            xlab="Interval", ylab="Avg Number of Steps", 
+            main="Number of Steps for weekday and weekends"))
 ```
 
 ![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
